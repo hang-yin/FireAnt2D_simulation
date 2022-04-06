@@ -16,7 +16,7 @@ screen_size = (1200, 1000)  # width and height for pygame screen
 screen = pygame.display.set_mode(screen_size)
 
 # configuring simulation
-robot_quantity = 10
+robot_quantity = 100  # number of robots
 frame_period = 100  # updating period of the simulation and graphics, in ms
 
 # reconfigure screen into a physical world
@@ -26,18 +26,7 @@ physical_world_size = (100.0, 100.0 * screen_size[1]/screen_size[0])
 # coefficient for robot swarm initialization distribution
 distribution_coef = 0.5
 
-# instantiate robot swarm
-robots = []  # contains all robots, index == robot id
-for i in range(robot_quantity):
-    # initialize random position that is away from window edges
 
-    sphere1_pos_rand = (((random.random() - 0.5) * distribution_coef + 0.5) * physical_world_size[0],
-                         ((random.random() - 0.5) * distribution_coef + 0.5) * physical_world_size[1])
-    orientation_rand = random.random() * 2*math.pi - math.pi  # random in (-pi, pi)
-    sphere2_pos_x = sphere1_pos_rand[0] + math.cos(orientation_rand) * bar_length
-    sphere2_pos_y = sphere1_pos_rand[1] + math.sin(orientation_rand) * bar_length
-    sphere2_pos_rand = (sphere2_pos_x,sphere2_pos_y)
-    robots.append(Robot(sphere1_pos_rand, sphere2_pos_rand, orientation_rand, 0))
 
 vbound_gap_ratio = 0.15  # for the virtual boundaries inside the window
 
@@ -55,7 +44,29 @@ pos_rt = world_to_display([physical_world_size[0]*(1-vbound_gap_ratio),
 pos_lt = world_to_display([physical_world_size[0]*vbound_gap_ratio,
                               physical_world_size[1]*(1-vbound_gap_ratio)], physical_world_size, screen_size)
 
+# instantiate robot swarm
+robots = []  # contains all robots, index == robot id
+for i in range(robot_quantity):
+    
+    row_idx = i % 20
+    col_idx = i // 20
+    orientation_set = 0.3 * math.pi
+    sphere1_pos_set = (physical_world_size[0]/2 + row_idx*0.75, physical_world_size[1]/2 + col_idx * math.sin(orientation_set) * bar_length + col_idx*0.85)
+    sphere2_pos_x = sphere1_pos_set[0] + math.cos(orientation_set) * bar_length
+    sphere2_pos_y = sphere1_pos_set[1] + math.sin(orientation_set) * bar_length
+    sphere2_pos_set = (sphere2_pos_x,sphere2_pos_y)
+    robots.append(Robot(sphere1_pos_set, sphere2_pos_set, orientation_set, 0))
 
+    '''
+    # initialize random position that is away from window edges
+    sphere1_pos_rand = (((random.random() - 0.5) * distribution_coef + 0.5) * physical_world_size[0],
+                         ((random.random() - 0.5) * distribution_coef + 0.5) * physical_world_size[1])
+    orientation_rand = random.random() * 2*math.pi - math.pi  # random in (-pi, pi)
+    sphere2_pos_x = sphere1_pos_rand[0] + math.cos(orientation_rand) * bar_length
+    sphere2_pos_y = sphere1_pos_rand[1] + math.sin(orientation_rand) * bar_length
+    sphere2_pos_rand = (sphere2_pos_x,sphere2_pos_y)
+    robots.append(Robot(sphere1_pos_rand, sphere2_pos_rand, orientation_rand, 0))
+    '''
 
 
 def main():
