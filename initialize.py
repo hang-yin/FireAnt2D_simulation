@@ -44,41 +44,47 @@ pos_rt = world_to_display([physical_world_size[0]*(1-vbound_gap_ratio),
 pos_lt = world_to_display([physical_world_size[0]*vbound_gap_ratio,
                               physical_world_size[1]*(1-vbound_gap_ratio)], physical_world_size, screen_size)
 
-# instantiate robot swarm
-robots = []  # contains all robots, index == robot id
-for i in range(robot_quantity):
-    
-    '''
-    row_idx = i % 20
-    col_idx = i // 20
-    orientation_set = 0.3 * math.pi
-    sphere1_pos_set = (physical_world_size[0]/2 + row_idx*0.75, physical_world_size[1]/2 + col_idx * math.sin(orientation_set) * bar_length + col_idx*0.85)
-    sphere2_pos_x = sphere1_pos_set[0] + math.cos(orientation_set) * bar_length
-    sphere2_pos_y = sphere1_pos_set[1] + math.sin(orientation_set) * bar_length
-    sphere2_pos_set = (sphere2_pos_x,sphere2_pos_y)
-    robots.append(Robot(sphere1_pos_set, sphere2_pos_set, orientation_set, 0))
 
-    '''
-    # initialize random position that is away from window edges
-    sphere1_pos_rand = (((random.random() - 0.5) * distribution_coef + 0.5) * physical_world_size[0],
-                         ((random.random() - 0.5) * distribution_coef + 0.5) * physical_world_size[1])
-    orientation_rand = random.random() * 2*math.pi - math.pi  # random in (-pi, pi)
-    sphere2_pos_x = sphere1_pos_rand[0] + math.cos(orientation_rand) * bar_length
-    sphere2_pos_y = sphere1_pos_rand[1] + math.sin(orientation_rand) * bar_length
-    sphere2_pos_rand = (sphere2_pos_x,sphere2_pos_y)
-    collided = False
-    for j in range(len(robots)):
-        if collision_detection(sphere1_pos_rand, robots[j].sphere1_pos, sphere_radius) or \
-            collision_detection(sphere2_pos_rand, robots[j].sphere2_pos, sphere_radius):
-            collided = True
-            break
-    if (not collided):
-        robots.append(Robot(sphere1_pos_rand, sphere2_pos_rand, orientation_rand, 0))
-    
+
+# initialize the robot swarm
+def initialize_swarm(swarmsize): 
+    bar_length = 1.5
+    # instantiate robot swarm
+    robots = []  # contains all robots, index == robot id
+    for i in range(swarmsize):
+        
+        '''
+        row_idx = i % 20
+        col_idx = i // 20
+        orientation_set = 0.3 * math.pi
+        sphere1_pos_set = (physical_world_size[0]/2 + row_idx*0.75, physical_world_size[1]/2 + col_idx * math.sin(orientation_set) * bar_length + col_idx*0.85)
+        sphere2_pos_x = sphere1_pos_set[0] + math.cos(orientation_set) * bar_length
+        sphere2_pos_y = sphere1_pos_set[1] + math.sin(orientation_set) * bar_length
+        sphere2_pos_set = (sphere2_pos_x,sphere2_pos_y)
+        robots.append(Robot(sphere1_pos_set, sphere2_pos_set, orientation_set, 0))
+
+        '''
+        # initialize random position that is away from window edges
+        sphere1_pos_rand = (((random.random() - 0.5) * distribution_coef + 0.5) * physical_world_size[0],
+                            ((random.random() - 0.5) * distribution_coef + 0.5) * physical_world_size[1])
+        orientation_rand = random.random() * 2*math.pi - math.pi  # random in (-pi, pi)
+        sphere2_pos_x = sphere1_pos_rand[0] + math.cos(orientation_rand) * bar_length
+        sphere2_pos_y = sphere1_pos_rand[1] + math.sin(orientation_rand) * bar_length
+        sphere2_pos_rand = (sphere2_pos_x,sphere2_pos_y)
+        collided = False
+        for j in range(len(robots)):
+            if collision_detection(sphere1_pos_rand, robots[j].sphere1_pos, sphere_radius) or \
+                collision_detection(sphere2_pos_rand, robots[j].sphere2_pos, sphere_radius):
+                collided = True
+                break
+        if (not collided):
+            robots.append(Robot(sphere1_pos_rand, sphere2_pos_rand, orientation_rand, 0))
+    return robots
+
 
 
 def main():
-
+    robots = initialize_swarm(robot_quantity)
     sim_exit = False  # simulation exit flag
     timer_last = pygame.time.get_ticks()  # return number of milliseconds after pygame.init()
     timer_now = timer_last  # initialize it with timer_last
@@ -90,11 +96,25 @@ def main():
             if event.type == pygame.KEYUP:
                 if (event.key == pygame.K_ESCAPE) or (event.key == pygame.K_q):
                     sim_exit = True  # exit with ESC key or Q key
+        
+        '''
+        for i in range(len(robots)):
+            robots[i].update()
+            robots[i].draw(screen, robot_color, connection_color, sphere_radius, bar_length)
+        '''
 
         # update the physics, control rules and graphics at the same time
         timer_now = pygame.time.get_ticks()
-        if (timer_now - timer_last) > frame_period:
+        dt = (timer_now - timer_last)  # time interval in milliseconds
+        if (dt) > frame_period:
             timer_last = timer_now  # reset timer
+
+            # update robot kinamatics
+            for i in range(len(robots)):
+                if robots[i].status == 0:
+                    # assign random rotation direction for each robot
+                    robots[i].sphere1_status = random.randint(0, 1)
+                    robots[i].update_position(dt)
 
             # graphics update
             screen.fill(background_color)
