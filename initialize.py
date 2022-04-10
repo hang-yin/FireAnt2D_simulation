@@ -48,6 +48,7 @@ pos_lt = world_to_display([physical_world_size[0]*vbound_gap_ratio,
 robots = []  # contains all robots, index == robot id
 for i in range(robot_quantity):
     
+    '''
     row_idx = i % 20
     col_idx = i // 20
     orientation_set = 0.3 * math.pi
@@ -65,8 +66,15 @@ for i in range(robot_quantity):
     sphere2_pos_x = sphere1_pos_rand[0] + math.cos(orientation_rand) * bar_length
     sphere2_pos_y = sphere1_pos_rand[1] + math.sin(orientation_rand) * bar_length
     sphere2_pos_rand = (sphere2_pos_x,sphere2_pos_y)
-    robots.append(Robot(sphere1_pos_rand, sphere2_pos_rand, orientation_rand, 0))
-    '''
+    collided = False
+    for j in range(len(robots)):
+        if collision_detection(sphere1_pos_rand, robots[j].sphere1_pos, sphere_radius) or \
+            collision_detection(sphere2_pos_rand, robots[j].sphere2_pos, sphere_radius):
+            collided = True
+            break
+    if (not collided):
+        robots.append(Robot(sphere1_pos_rand, sphere2_pos_rand, orientation_rand, 0))
+    
 
 
 def main():
@@ -93,7 +101,7 @@ def main():
             # draw the virtual boundaries
             pygame.draw.lines(screen, (255, 255, 255), True, [pos_lb, pos_rb, pos_rt, pos_lt], 1)
             # draw the robots
-            for i in range(robot_quantity):
+            for i in range(len(robots)):
                 sphere1_display_pos = world_to_display(robots[i].sphere1_pos, physical_world_size, screen_size)
                 sphere2_display_pos = world_to_display(robots[i].sphere2_pos, physical_world_size, screen_size)
 
