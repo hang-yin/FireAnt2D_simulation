@@ -112,8 +112,13 @@ def main():
             # update robot kinamatics
             for i in range(len(robots)):
                 if robots[i].status == 0:
-                    # assign random rotation direction for each robot
-                    robots[i].sphere1_status = random.randint(0, 1)
+                    sphere_id = random.randint(0, 1)
+                    if sphere_id == 0:
+                        robots[i].sphere1_status = 1
+                        robots[i].sphere2_status = 0
+                    else:
+                        robots[i].sphere1_status = 0
+                        robots[i].sphere2_status = 1
                     robots[i].update_position(dt)
 
             # graphics update

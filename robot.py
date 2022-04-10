@@ -45,9 +45,9 @@ class Robot:
 			elif self.orientation < -math.pi:
 				self.orientation += 2 * math.pi
 			# update sphere1_pos
-			self.sphere1_pos[0] = self.sphere2_pos[0] + math.cos(self.orientation) * bar_length
-			self.sphere1_pos[1] = self.sphere2_pos[1] + math.sin(self.orientation) * bar_length
-		if self.sphere2_status == 1:
+			self.sphere1_pos[0] = self.sphere2_pos[0] - math.cos(self.orientation) * bar_length
+			self.sphere1_pos[1] = self.sphere2_pos[1] - math.sin(self.orientation) * bar_length
+		elif self.sphere2_status == 1:
 			# rotate sphere2
 			if self.rotation_direction_sphere2 == 0:
 				self.orientation += self.v_sphere2 * dt / 1000
