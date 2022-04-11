@@ -1,6 +1,7 @@
 import pygame
 import math
 import numpy as np
+from helper import robot_collision
 
 bar_length = 1.5
 
@@ -11,7 +12,7 @@ def distance(point1, point2):
 
 
 class Robot:
-	def __init__(self, sphere1_pos, sphere2_pos, orientation, status):
+	def __init__(self, sphere1_pos, sphere2_pos, orientation, status, radius):
 		self.sphere1_pos = list(sphere1_pos) # [x, y]
 		self.sphere2_pos = list(sphere2_pos) # [x, y]
 		self.orientation = orientation
@@ -22,6 +23,7 @@ class Robot:
 		self.sphere2_status = 0 # 0: moving, 1: rotating
 		self.v_sphere1 = 0.5
 		self.v_sphere2 = 0.5
+		self.radius = radius
 
 	def set_status(self, status):
 		self.status = status
@@ -32,6 +34,12 @@ class Robot:
 			self.v_sphere1 = v
 		else:
 			self.v_sphere2 = v
+
+	def check_collision(self, robot2):
+		if robot_collision(self, robot2, self.radius):
+			return True
+		else:
+			return False
 
 	def update_position(self, dt):
 		if self.sphere1_status == 1:

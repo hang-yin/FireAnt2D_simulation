@@ -1,7 +1,7 @@
 import pygame
 import math, random
 from robot import Robot
-from helper import world_to_display, collision_detection
+from helper import world_to_display, sphere_collision, robot_collision
 
 background_color = (0, 0, 0)  # set background color to black
 robot_color = (0, 50, 200)  # set robot color to blue
@@ -25,8 +25,6 @@ physical_world_size = (100.0, 100.0 * screen_size[1]/screen_size[0])
 
 # coefficient for robot swarm initialization distribution
 distribution_coef = 0.5
-
-
 
 vbound_gap_ratio = 0.15  # for the virtual boundaries inside the window
 
@@ -72,13 +70,14 @@ def initialize_swarm(swarmsize):
         sphere2_pos_y = sphere1_pos_rand[1] + math.sin(orientation_rand) * bar_length
         sphere2_pos_rand = (sphere2_pos_x,sphere2_pos_y)
         collided = False
+        new_robot = Robot(sphere1_pos_rand, sphere2_pos_rand, orientation_rand, 0, sphere_radius)
         for j in range(len(robots)):
-            if collision_detection(sphere1_pos_rand, robots[j].sphere1_pos, sphere_radius) or \
-                collision_detection(sphere2_pos_rand, robots[j].sphere2_pos, sphere_radius):
+            if robot_collision(new_robot, robots[j], sphere_radius):
                 collided = True
                 break
         if (not collided):
-            robots.append(Robot(sphere1_pos_rand, sphere2_pos_rand, orientation_rand, 0))
+            robots.append(new_robot)
+    print(len(robots))
     return robots
 
 
@@ -120,6 +119,12 @@ def main():
                         robots[i].sphere1_status = 0
                         robots[i].sphere2_status = 1
                     robots[i].update_position(dt)
+                    for j in range(len(robots)):
+                        if i != j:
+                            if robot_collision(robots[i], robots[j], sphere_radius):
+                                robots[i].status = 1
+                                robots[j].status = 1
+                                break
 
             # graphics update
             screen.fill(background_color)
