@@ -15,7 +15,7 @@ def sphere_collision(sphere1_pos, sphere2_pos, sphere_radius):
     physical_sphere1_pos = world_to_display(sphere1_pos, physical_world_size, screen_size)
     physical_sphere2_pos = world_to_display(sphere2_pos, physical_world_size, screen_size)
     distance = math.sqrt((physical_sphere1_pos[0] - physical_sphere2_pos[0])**2 + (physical_sphere1_pos[1] - physical_sphere2_pos[1])**2)
-    if distance < sphere_radius:
+    if distance < sphere_radius * 2:
         return True
     else:
         return False
