@@ -10,8 +10,8 @@ def world_to_display(input_pos, world_size, display_size):
     pos_display[1] = int((1-input_pos[1]/world_size[1]) * display_size[1])
     return pos_display
 
-# detect collision between two spheres
-def sphere_collision(sphere1_pos, sphere2_pos, sphere_radius):
+# detect collision between two spheres/robots
+def robot_collision(sphere1_pos, sphere2_pos, sphere_radius):
     physical_sphere1_pos = world_to_display(sphere1_pos, physical_world_size, screen_size)
     physical_sphere2_pos = world_to_display(sphere2_pos, physical_world_size, screen_size)
     distance = math.sqrt((physical_sphere1_pos[0] - physical_sphere2_pos[0])**2 + (physical_sphere1_pos[1] - physical_sphere2_pos[1])**2)
@@ -20,6 +20,7 @@ def sphere_collision(sphere1_pos, sphere2_pos, sphere_radius):
     else:
         return False
 
+'''
 # detect collision between two robots
 def robot_collision(robot1, robot2, sphere_radius):
     if sphere_collision(robot1.sphere1_pos, robot2.sphere1_pos, sphere_radius) or \
@@ -29,3 +30,4 @@ def robot_collision(robot1, robot2, sphere_radius):
         return True
     else:
         return False
+'''

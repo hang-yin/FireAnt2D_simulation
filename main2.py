@@ -1,6 +1,6 @@
 import pygame
 import math, random
-from robot import Robot
+from robot2 import Robot
 from helper import world_to_display, sphere_collision, robot_collision
 
 background_color = (0, 0, 0)  # set background color to black
