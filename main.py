@@ -15,6 +15,14 @@ class Robot:
     def display(self):
         pygame.draw.circle(screen, self.colour, (self.x, self.y), self.radius, self.thickness)
 
+class Hole: 
+    def __init__(self, center_x, center_y, motion_direction):
+        self.center_x = center_x
+        self.center_y = center_y
+        # motion direction: 0 for stationary, 1-6 for shepard direction
+        self.motion_direction = motion_direction
+
+
 
 width = 1200
 height = 800
@@ -77,6 +85,22 @@ swarm.append(anchor_2)
 # define number of robots that can be contained on the bridge (horizontally)
 bridge_horizontal_swarm_size = int((width - 2*ground_width) / (robot_radius * 2))
 bridge_vertical_swarm_size = 5
+
+for j in range(bridge_vertical_swarm_size):
+    for i in range(bridge_horizontal_swarm_size):
+        x = anchor_1_x + (i + 1) * robot_radius * 2
+        y = anchor_1_y + 2*j*robot_radius*2*math.cos(pi/6)
+        robot = Robot(x, y, robot_radius)
+        robot.display()
+        swarm.append(robot)
+    for i in range(bridge_horizontal_swarm_size - 1):
+        x = anchor_1_x + (i + 1) * robot_radius * 2 + robot_radius
+        y = anchor_1_y + (2*j+1)*2*robot_radius*math.cos(pi/6)
+        robot = Robot(x, y, robot_radius)
+        robot.display()
+        swarm.append(robot)
+
+'''
 for i in range(bridge_horizontal_swarm_size):
     for j in range(bridge_vertical_swarm_size):
         x = anchor_1_x + (i + 1) * robot_radius * 2
@@ -84,6 +108,7 @@ for i in range(bridge_horizontal_swarm_size):
         robot = Robot(x, y, robot_radius)
         robot.display()
         swarm.append(robot)
+'''
 
 '''
 swarm_size = 10
