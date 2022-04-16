@@ -1,13 +1,12 @@
 import pygame
 import math, random
-from robot1 import Robot
-from helper import world_to_display, sphere_collision, robot_collision
+from robot import Robot
+from helper import world_to_display, robot_collision
 
 background_color = (0, 0, 0)  # set background color to black
 robot_color = (0, 50, 200)  # set robot color to blue
 connection_color = (255, 255, 255)  # set connection color to white
-sphere_radius = 5  # model spheres as dots, set radius in number of pixels
-bar_length = 1.5 # model connection as a bar, set bar length in number of pixels
+sphere_radius = 20  # model spheres as dots, set radius in number of pixels
 
 # window origin is @ top left corner
 pygame.init()  # initialize pygame
@@ -16,18 +15,19 @@ screen_size = (1200, 1000)  # width and height for pygame screen
 screen = pygame.display.set_mode(screen_size)
 
 # configuring simulation
-robot_quantity = 100  # number of robots
+robot_quantity = 10  # number of robots
 frame_period = 100  # updating period of the simulation and graphics, in ms
 
 # reconfigure screen into a physical world
 # i.e., the origin is at bottom left corner of the screen, (0,0)
-physical_world_size = (100.0, 100.0 * screen_size[1]/screen_size[0])
+# physical_world_size = (100.0, 100.0 * screen_size[1]/screen_size[0])
 
 # coefficient for robot swarm initialization distribution
 distribution_coef = 0.5
 
 vbound_gap_ratio = 0.15  # for the virtual boundaries inside the window
 
+'''
 # calculate the corner positions of virtual boundaries, for display
 # left bottom corner
 pos_lb = world_to_display([physical_world_size[0]*vbound_gap_ratio,
@@ -41,12 +41,11 @@ pos_rt = world_to_display([physical_world_size[0]*(1-vbound_gap_ratio),
 # left top corner
 pos_lt = world_to_display([physical_world_size[0]*vbound_gap_ratio,
                               physical_world_size[1]*(1-vbound_gap_ratio)], physical_world_size, screen_size)
-
+'''
 
 
 # initialize the robot swarm
 def initialize_swarm(swarmsize): 
-    bar_length = 1.5
     # instantiate robot swarm
     robots = []  # contains all robots, index == robot id
     for i in range(swarmsize):
@@ -63,14 +62,13 @@ def initialize_swarm(swarmsize):
 
         '''
         # initialize random position that is away from window edges
-        sphere1_pos_rand = (((random.random() - 0.5) * distribution_coef + 0.5) * physical_world_size[0],
-                            ((random.random() - 0.5) * distribution_coef + 0.5) * physical_world_size[1])
-        orientation_rand = random.random() * 2*math.pi - math.pi  # random in (-pi, pi)
-        sphere2_pos_x = sphere1_pos_rand[0] + math.cos(orientation_rand) * bar_length
-        sphere2_pos_y = sphere1_pos_rand[1] + math.sin(orientation_rand) * bar_length
-        sphere2_pos_rand = (sphere2_pos_x,sphere2_pos_y)
+        pos = (((random.random() - 0.5) * distribution_coef + 0.5) * screen_size[0],
+                            ((random.random() - 0.5) * distribution_coef + 0.5) * screen_size[1])
+        # define random motion direction beteween 1 and 6
+        motion_direction = random.randint(1, 6)
+        # motion_direction = 0
         collided = False
-        new_robot = Robot(sphere1_pos_rand, sphere2_pos_rand, orientation_rand, 0, sphere_radius)
+        new_robot = Robot(sphere_radius, pos, motion_direction)
         for j in range(len(robots)):
             if robot_collision(new_robot, robots[j], sphere_radius):
                 collided = True
@@ -110,34 +108,23 @@ def main():
 
             # update robot kinamatics
             for i in range(len(robots)):
-                if robots[i].status == 0:
-                    sphere_id = random.randint(0, 1)
-                    if sphere_id == 0:
-                        robots[i].sphere1_status = 1
-                        robots[i].sphere2_status = 0
-                    else:
-                        robots[i].sphere1_status = 0
-                        robots[i].sphere2_status = 1
-                    robots[i].update_position(dt)
-                    for j in range(len(robots)):
-                        if i != j:
-                            if robot_collision(robots[i], robots[j], sphere_radius):
-                                robots[i].status = 1
-                                robots[j].status = 1
-                                break
+                robots[i].update_position(dt)
+                for j in range(len(robots)):
+                    if i != j:
+                        if robot_collision(robots[i], robots[j], sphere_radius):
+                            robots[i].motion_direction = 0
+                            robots[j].motion_direction = 0
+                            break
 
             # graphics update
             screen.fill(background_color)
             # draw the virtual boundaries
-            pygame.draw.lines(screen, (255, 255, 255), True, [pos_lb, pos_rb, pos_rt, pos_lt], 1)
+            # pygame.draw.lines(screen, (255, 255, 255), True, [pos_lb, pos_rb, pos_rt, pos_lt], 1)
             # draw the robots
             for i in range(len(robots)):
-                sphere1_display_pos = world_to_display(robots[i].sphere1_pos, physical_world_size, screen_size)
-                sphere2_display_pos = world_to_display(robots[i].sphere2_pos, physical_world_size, screen_size)
+                # robot_display_pos = world_to_display(robots[i].pos, physical_world_size, screen_size)
 
-                pygame.draw.circle(screen, robot_color, sphere1_display_pos, sphere_radius, 0)
-                pygame.draw.circle(screen, robot_color, sphere2_display_pos, sphere_radius, 0)
-                pygame.draw.line(screen, connection_color, sphere1_display_pos, sphere2_display_pos, width=1)
+                pygame.draw.circle(screen, robot_color, robots[i].pos, sphere_radius, 0)
             pygame.display.update()
 
 if __name__ == '__main__':
