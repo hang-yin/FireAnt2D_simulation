@@ -3,7 +3,9 @@ from pygame.locals import (QUIT, KEYDOWN, K_ESCAPE)
 
 import Box2D  # The main library
 # Box2D.b2 maps Box2D.b2Vec2 to vec2 (and so on)
-from Box2D.b2 import (world, polygonShape, circleShape, staticBody, dynamicBody)
+# from Box2D.b2 import (world, polygonShape, circleShape, staticBody, dynamicBody)
+from Box2D.b2 import (world, staticBody, dynamicBody, kinematicBody,
+                      polygonShape, circleShape, edgeShape, loopShape)
 
 # --- constants ---
 # Box2D deals with meters, but we want to display pixels,
@@ -38,9 +40,32 @@ bridge_right = world.CreateStaticBody(
     shapes=polygonShape(box=(10, 20)),
 )
 
-for i in range(9, 52, 2):
+'''
+body1 = world.CreateDynamicBody(position=(3, 23))
+circle1 = body1.CreateCircleFixture(radius=1, density=1, friction=0.3)
+body2 = world.CreateDynamicBody(position=(5, 23))
+circle2 = body2.CreateCircleFixture(radius=1, density=1, friction=0.3)
+world.CreateDistanceJoint(bodyA = body1, bodyB = body2, anchorA = body1.worldCenter, anchorB = body2.worldCenter, collideConnected = False)
+'''
+left_anchor = world.CreateStaticBody(
+    position=(9, 21),
+    shapes = circleShape(radius = 1)
+)
+
+right_anchor = world.CreateStaticBody(
+    position=(51, 21),
+    shapes = circleShape(radius = 1)
+)
+
+bodies = []
+for i in range(11, 50, 2):
     body = world.CreateDynamicBody(position=(i, 21))
+    bodies.append(body)
     circle = body.CreateCircleFixture(radius=1, density=1, friction=0.3)
+for i in range(len(bodies)-1):
+    world.CreateDistanceJoint(bodyA = bodies[i], bodyB = bodies[i+1], anchorA = bodies[i].worldCenter, anchorB = bodies[i+1].worldCenter, collideConnected = False)
+world.CreateDistanceJoint(bodyA = left_anchor, bodyB = bodies[0], anchorA = left_anchor.worldCenter, anchorB = bodies[0].worldCenter, collideConnected = False)
+world.CreateDistanceJoint(bodyA = right_anchor, bodyB = bodies[-1], anchorA = right_anchor.worldCenter, anchorB = bodies[-1].worldCenter, collideConnected = False)
 
 '''
 body = world.CreateDynamicBody(position=(30, 45), angle=15)
