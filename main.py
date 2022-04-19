@@ -145,7 +145,3 @@ while running:
             if event.key == pygame.K_SPACE:
                 paused = (True, False)[paused]
     
-    
-
-    
-    
